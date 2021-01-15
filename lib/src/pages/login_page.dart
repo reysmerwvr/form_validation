@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_validation/src/bloc/provider.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -85,7 +86,8 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  _loginForm(BuildContext context) {
+  Widget _loginForm(BuildContext context) {
+    final bloc = Provider.of(context);
     final size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       child: Column(
@@ -117,11 +119,11 @@ class LoginPage extends StatelessWidget {
                   style: TextStyle(fontSize: 20.0),
                 ),
                 SizedBox(height: 60.0),
-                _createEmailField(),
+                _createEmailField(bloc),
                 SizedBox(height: 60.0),
-                _createPasswordField(),
+                _createPasswordField(bloc),
                 SizedBox(height: 60.0),
-                _createButton(),
+                _createButton(bloc),
               ],
             ),
           ),
@@ -132,45 +134,69 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _createEmailField() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.0),
-      child: TextField(
-        keyboardType: TextInputType.emailAddress,
-        decoration: InputDecoration(
-          icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
-          hintText: 'example@example.com',
-          labelText: 'Email',
-        ),
-      ),
+  Widget _createEmailField(LoginBloc bloc) {
+    return StreamBuilder(
+      stream: bloc.emailStream,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: TextField(
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(
+              icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
+              hintText: 'example@example.com',
+              labelText: 'Email',
+              errorText: snapshot.error,
+            ),
+            onChanged: (value) => bloc.changeEmail(value),
+          ),
+        );
+      },
     );
   }
 
-  Widget _createPasswordField() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.0),
-      child: TextField(
-        obscureText: true,
-        keyboardType: TextInputType.visiblePassword,
-        decoration: InputDecoration(
-          icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
-          labelText: 'Password',
-        ),
-      ),
+  Widget _createPasswordField(LoginBloc bloc) {
+    return StreamBuilder(
+      stream: bloc.passwordStream,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: TextField(
+            obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
+            decoration: InputDecoration(
+              icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
+              labelText: 'Password',
+              errorText: snapshot.error,
+            ),
+            onChanged: bloc.changePassword,
+          ),
+        );
+      },
     );
   }
 
-  _createButton() {
-    return RaisedButton(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
-        child: Text('Sign In'),
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-      elevation: 0.0,
-      color: Colors.deepPurple,
-      textColor: Colors.white,
-      onPressed: () {},
+  _createButton(LoginBloc bloc) {
+    return StreamBuilder(
+      stream: bloc.formValidStream,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return RaisedButton(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
+            child: Text('Sign In'),
+          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          elevation: 0.0,
+          color: Colors.deepPurple,
+          textColor: Colors.white,
+          onPressed: snapshot.hasData ? () => _signIn(bloc, context) : null,
+        );
+      },
     );
+  }
+
+  _signIn(LoginBloc bloc, context) {
+    Navigator.pushReplacementNamed(context, 'home');
   }
 }
