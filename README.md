@@ -10,6 +10,7 @@
 ## 👁 Preview
 
 ![login](login.png)
+![home](home.png)
 
 ## ⬇️ Version
 
