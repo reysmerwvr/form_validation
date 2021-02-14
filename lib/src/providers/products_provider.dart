@@ -8,8 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mime_type/mime_type.dart';
 
 class ProductsProvider {
-  final String _url =
-      'https://flutter-course-b55f6-default-rtdb.firebaseio.com';
+  final String _url = "${env['FIREBASE_DATABASE_BASE_URL']}";
 
   Future<Map<String, dynamic>> createProduct(ProductModel product) async {
     final url = '$_url/products.json';
