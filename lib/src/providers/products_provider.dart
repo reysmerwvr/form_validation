@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:form_validation/src/user_preferences/user_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:form_validation/src/models/product_model.dart';
@@ -9,21 +10,22 @@ import 'package:mime_type/mime_type.dart';
 
 class ProductsProvider {
   final String _url = "${env['FIREBASE_DATABASE_BASE_URL']}";
+  final _pref = new UserPreferences();
 
   Future<Map<String, dynamic>> createProduct(ProductModel product) async {
-    final url = '$_url/products.json';
+    final url = '$_url/products.json?auth=${_pref.token}';
     final response = await http.post(url, body: productModelToJson(product));
     return json.decode(response.body);
   }
 
   Future<Map<String, dynamic>> editProduct(ProductModel product) async {
-    final url = '$_url/products/${product.id}.json';
+    final url = '$_url/products/${product.id}.json?auth=${_pref.token}';
     final response = await http.put(url, body: productModelToJson(product));
     return json.decode(response.body);
   }
 
   Future<List<ProductModel>> loadProducts() async {
-    final url = '$_url/products.json';
+    final url = '$_url/products.json?auth=${_pref.token}';
     final response = await http.get(url);
     final Map<String, dynamic> decodedData = json.decode(response.body);
     if (decodedData == null) return [];
@@ -37,7 +39,7 @@ class ProductsProvider {
   }
 
   Future<Null> deleteProduct(String id) async {
-    final url = '$_url/products/$id.json';
+    final url = '$_url/products/$id.json?auth=${_pref.token}';
     final response = await http.delete(url);
     return json.decode(response.body);
   }
