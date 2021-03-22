@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:form_validation/src/bloc/provider.dart';
+// import 'package:form_validation/src/bloc/provider.dart';
 import 'package:form_validation/src/models/product_model.dart';
 import 'package:form_validation/src/providers/products_provider.dart';
 
@@ -8,7 +8,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    // final bloc = Provider.of(context);
 
     return Scaffold(
       appBar: AppBar(

@@ -3,7 +3,7 @@ import 'package:form_validation/src/bloc/provider.dart';
 import 'package:form_validation/src/providers/users_provider.dart';
 import 'package:form_validation/src/utils/utils.dart';
 
-class LoginPage extends StatelessWidget {
+class RegisterPage extends StatelessWidget {
   final usersProvider = new UsersProvider();
   @override
   Widget build(BuildContext context) {
@@ -11,7 +11,7 @@ class LoginPage extends StatelessWidget {
       body: Stack(
         children: <Widget>[
           _createBackground(context),
-          _loginForm(context),
+          _registerForm(context),
         ],
       ),
     );
@@ -89,7 +89,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _loginForm(BuildContext context) {
+  Widget _registerForm(BuildContext context) {
     final bloc = Provider.of(context);
     final size = MediaQuery.of(context).size;
     return SingleChildScrollView(
@@ -118,7 +118,7 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Login',
+                  'Register',
                   style: TextStyle(fontSize: 20.0),
                 ),
                 SizedBox(height: 60.0),
@@ -131,9 +131,8 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           FlatButton(
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, 'register'),
-            child: Text('Register'),
+            onPressed: () => Navigator.pushReplacementNamed(context, 'login'),
+            child: Text('Already have account? Login'),
           ),
           SizedBox(height: 100.0),
         ],
@@ -190,25 +189,25 @@ class LoginPage extends StatelessWidget {
         return RaisedButton(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
-            child: Text('Sign In'),
+            child: Text('Sign Up'),
           ),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
           elevation: 0.0,
           color: Colors.deepPurple,
           textColor: Colors.white,
-          onPressed: snapshot.hasData ? () => _signIn(bloc, context) : null,
+          onPressed: snapshot.hasData ? () => _register(bloc, context) : null,
         );
       },
     );
   }
 
-  _signIn(LoginBloc bloc, context) async {
-    Map response = await usersProvider.login(bloc.email, bloc.password);
+  _register(LoginBloc bloc, context) async {
+    Map response = await usersProvider.newUser(bloc.email, bloc.password);
     if (response['ok']) {
       Navigator.pushReplacementNamed(context, 'home');
     } else {
-      showAlert(context, 'Invalid Credentials');
+      showAlert(context, response['message']);
     }
   }
 }
