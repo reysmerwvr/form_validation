@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:form_validation/src/bloc/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:form_validation/src/models/product_model.dart';
-import 'package:form_validation/src/providers/products_provider.dart';
 import 'package:form_validation/src/utils/validator.dart' as utils;
 
 class ProductPage extends StatefulWidget {
@@ -14,14 +14,16 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  final ProductsProvider productProvider = new ProductsProvider();
 
+  ProductsBloc productsBloc;
   ProductModel productModel = new ProductModel();
   bool _fetching = false;
   File photo;
 
   @override
   Widget build(BuildContext context) {
+    productsBloc = Provider.productsBloc(context);
+
     final ProductModel productData = ModalRoute.of(context).settings.arguments;
     if (productData != null) {
       productModel = productData;
@@ -114,12 +116,12 @@ class _ProductPageState extends State<ProductPage> {
       _fetching = true;
     });
     if (photo != null) {
-      productModel.imageUrl = await productProvider.uploadImage(photo);
+      productModel.imageUrl = await productsBloc.uploadPhoto(photo);
     }
     if (productModel.id == null) {
-      productProvider.createProduct(productModel);
+      productsBloc.addProduct(productModel);
     } else {
-      productProvider.editProduct(productModel);
+      productsBloc.editProduct(productModel);
     }
     setState(() {
       _fetching = false;
@@ -167,6 +169,8 @@ class _ProductPageState extends State<ProductPage> {
     final pickedFile = await _picker.getImage(
       source: origin,
     );
+
+    if (pickedFile == null) return;
 
     photo = File(pickedFile.path);
 

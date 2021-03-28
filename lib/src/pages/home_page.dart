@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
-// import 'package:form_validation/src/bloc/provider.dart';
+import 'package:form_validation/src/bloc/products_bloc.dart';
+import 'package:form_validation/src/bloc/provider.dart';
 import 'package:form_validation/src/models/product_model.dart';
-import 'package:form_validation/src/providers/products_provider.dart';
 
 class HomePage extends StatelessWidget {
-  final productsProvider = new ProductsProvider();
-
   @override
   Widget build(BuildContext context) {
-    // final bloc = Provider.of(context);
+    final productsBloc = Provider.productsBloc(context);
+    productsBloc.loadProducts();
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
       ),
-      // body: Column(
-      //   crossAxisAlignment: CrossAxisAlignment.center,
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   children: <Widget>[
-      //     Text('Email: ${bloc.email}'),
-      //     Divider(),
-      //     Text('Password: ${bloc.password}'),
-      //   ],
-      // ),
-      body: _createList(),
+      body: _createList(productsBloc),
       floatingActionButton: _createButton(context),
     );
   }
@@ -36,9 +26,9 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _createList() {
-    return FutureBuilder(
-      future: productsProvider.loadProducts(),
+  Widget _createList(ProductsBloc productsBloc) {
+    return StreamBuilder(
+      stream: productsBloc.productsStream,
       builder:
           (BuildContext context, AsyncSnapshot<List<ProductModel>> snapshot) {
         if (snapshot.hasData) {
@@ -46,7 +36,7 @@ class HomePage extends StatelessWidget {
           return ListView.builder(
             itemCount: products.length,
             itemBuilder: (context, index) =>
-                _createItem(context, products[index]),
+                _createItem(context, productsBloc, products[index]),
           );
         } else {
           return Center(
@@ -57,15 +47,14 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _createItem(BuildContext context, ProductModel product) {
+  Widget _createItem(
+      BuildContext context, ProductsBloc productsBloc, ProductModel product) {
     return Dismissible(
         key: UniqueKey(),
         background: Container(
           color: Colors.red,
         ),
-        onDismissed: (direction) {
-          productsProvider.deleteProduct(product.id);
-        },
+        onDismissed: (direction) => productsBloc.deleteProduct(product.id),
         child: Card(
           child: Column(
             children: <Widget>[
